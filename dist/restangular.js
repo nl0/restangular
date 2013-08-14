@@ -142,12 +142,18 @@ module.provider('Restangular', function() {
               });
               return idValue;
             };
-            
+
             config.useCannonicalId = _.isUndefined(config.useCannonicalId) ? false : config.useCannonicalId;
             object.setUseCannonicalId = function(value) {
                 config.useCannonicalId = value;
             }
-            
+
+            config.getCannonicalIdFromElem = function(elem) {
+              var cannonicalId = elem[config.restangularFields.cannonicalId];
+              var actualId = _.isUndefined(cannonicalId) ? config.getIdFromElem(elem) : cannonicalId;
+              return actualId;
+            };
+
             /**
              * Sets the Response parser. This is used in case your response isn't directly the data.
              * For example if you have a response like {meta: {'meta'}, data: {name: 'Gonto'}}
@@ -442,13 +448,7 @@ module.provider('Restangular', function() {
                     var currUrl = acum + "/" + elem[__this.config.restangularFields.route];
                     
                     if (!elem[__this.config.restangularFields.restangularCollection]) {
-                        var elemId;
-                        if (config.useCannonicalId) {
-                            elemId = elem[config.restangularFields.cannonicalId];
-                        } else {
-                            elemId = __this.config.getIdFromElem(elem);
-                        }
-                        
+                        var elemId = __this.config[__this.config.useCannonicalId ? 'getCannonicalIdFromElem' : 'getIdFromElem'](elem);
                         if ("" !== elemId && !_.isUndefined(elemId) && !_.isNull(elemId)) {
                             currUrl += "/" + elemId;
                         }
